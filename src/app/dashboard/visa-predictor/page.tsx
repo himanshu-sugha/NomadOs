@@ -35,6 +35,7 @@ const countryRequirements = {
         ],
         processingTime: "2-3 months",
         successRate: 78,
+        policyUpdate: { daysAgo: 12, change: "Salary threshold increased to €56k for 2024" },
     },
     "Canada": {
         flag: "🇨🇦",
@@ -49,6 +50,7 @@ const countryRequirements = {
         ],
         processingTime: "6-8 months",
         successRate: 65,
+        policyUpdate: { daysAgo: 5, change: "CRS cutoff score increased from 490 → 495" },
     },
     "Singapore": {
         flag: "🇸🇬",
@@ -62,6 +64,7 @@ const countryRequirements = {
         ],
         processingTime: "3-8 weeks",
         successRate: 72,
+        policyUpdate: { daysAgo: 30, change: "COMPASS framework now required for all EP applications" },
     },
     "Australia": {
         flag: "🇦🇺",
@@ -76,6 +79,7 @@ const countryRequirements = {
         ],
         processingTime: "6-12 months",
         successRate: 60,
+        policyUpdate: { daysAgo: 21, change: "New occupation list released with 100+ additions" },
     },
     "UAE": {
         flag: "🇦🇪",
@@ -89,6 +93,7 @@ const countryRequirements = {
         ],
         processingTime: "2-4 weeks",
         successRate: 82,
+        policyUpdate: { daysAgo: 45, change: "Extended Golden Visa duration from 5 → 10 years" },
     },
 };
 
@@ -362,13 +367,94 @@ export default function VisaPredictorPage() {
         else if (finalScore >= 60) competitiveLevel = "Medium";
         else competitiveLevel = "Low";
 
+        // Calculate improvement suggestions
+        const improvements: { action: string; improvement: number; priority: number }[] = [];
+
+        // Check job offer improvement
+        if (!profile.hasJobOffer) {
+            const withJobOffer = { ...profile, hasJobOffer: true };
+            const jobOfferBonus = selectedCountry === "Germany" ? 22 : selectedCountry === "Singapore" ? 25 : 18;
+            improvements.push({ action: "Secure a job offer", improvement: jobOfferBonus, priority: 1 });
+        }
+
+        // Check language improvement
+        if (profile.languageScores.english < 7.5) {
+            const langImprovement = Math.round((7.5 - profile.languageScores.english) * 6);
+            improvements.push({ action: `Improve IELTS from ${profile.languageScores.english} → 7.5`, improvement: langImprovement, priority: 2 });
+        }
+
+        // Check degree improvement
+        if (profile.degreeLevel === "Bachelor's") {
+            improvements.push({ action: "Pursue Master's degree", improvement: 8, priority: 3 });
+        }
+
+        // Check experience improvement
+        if (profile.yearsExperience < 5) {
+            improvements.push({ action: `Gain ${5 - profile.yearsExperience} more years experience`, improvement: 10, priority: 4 });
+        }
+
+        // Check country-specific language
+        if (selectedCountry === "Canada" && profile.languageScores.french < 5) {
+            improvements.push({ action: "Learn French (A2 level)", improvement: 7, priority: 5 });
+        }
+        if (selectedCountry === "Germany" && profile.languageScores.german < 3) {
+            improvements.push({ action: "Learn German (A1 level)", improvement: 6, priority: 5 });
+        }
+
+        // Check STEM bonus
+        if (!["Technology", "Engineering", "Healthcare", "AI/ML", "Data Science"].includes(profile.fieldOfWork)) {
+            improvements.push({ action: "Transition to STEM field", improvement: 6, priority: 6 });
+        }
+
+        // Sort and take top 3
+        const topImprovements = improvements
+            .sort((a, b) => b.improvement - a.improvement)
+            .slice(0, 3);
+
+        // Calculate confidence band (uncertainty modeling)
+        const varianceFactors = [
+            profile.hasJobOffer ? 2 : 8, // Job offer uncertainty
+            profile.languageScores.english >= 7 ? 2 : 5, // Language certainty
+            profile.yearsExperience >= 5 ? 2 : 4, // Experience certainty
+        ];
+        const avgVariance = varianceFactors.reduce((a, b) => a + b, 0) / varianceFactors.length;
+        const confidenceLow = Math.max(5, finalScore - Math.round(avgVariance));
+        const confidenceHigh = Math.min(100, finalScore + Math.round(avgVariance));
+        const confidenceLevel: "High" | "Medium" | "Low" = avgVariance <= 3 ? "High" : avgVariance <= 5 ? "Medium" : "Low";
+
+        // Explainability breakdown (scores out of max)
+        const breakdown = {
+            education: { score: getEducationScore(profile.hasDegree, profile.degreeLevel), max: 100, weight: 25 },
+            experience: { score: getExperienceScore(profile.yearsExperience, 3), max: 100, weight: 20 },
+            language: { score: getLanguageScore(profile.languageScores.english), max: 100, weight: 15 },
+            age: { score: getAgeScore(profile.age, selectedCountry), max: 100, weight: 15 },
+            documents: { score: (profile.hasPassport ? 50 : 0) + (profile.hasHealthInsurance ? 50 : 0), max: 100, weight: 10 },
+        };
+
+        // Why low explanations
+        const whyLow: string[] = [];
+        if (finalScore < 60) {
+            if (!profile.hasJobOffer) whyLow.push("No job offer secured");
+            if (profile.languageScores.english < 6) whyLow.push("English below threshold (IELTS < 6)");
+            if (profile.age > 40 && (selectedCountry === "Canada" || selectedCountry === "Australia")) {
+                whyLow.push("Age above preferred range");
+            }
+            if (profile.yearsExperience < 3) whyLow.push("Less than 3 years experience");
+            if (profile.hasPreviousVisaRejection) whyLow.push("Previous visa rejection on record");
+        }
+
         return {
             score: finalScore,
             metRequirements,
             partialRequirements,
             missingRequirements,
             bonusPoints,
-            competitiveLevel
+            competitiveLevel,
+            // New fields
+            topImprovements,
+            confidenceBand: { low: confidenceLow, high: confidenceHigh, level: confidenceLevel },
+            breakdown,
+            whyLow
         };
     };
 
@@ -639,7 +725,12 @@ I am fully committed to contributing positively to ${selectedCountry}'s economy 
                                         <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${scoreGradient} flex items-center justify-center shadow-lg`}>
                                             <span className="text-2xl font-bold text-white">{result.score}%</span>
                                         </div>
-                                        <p className="text-[10px] text-muted-foreground mt-1">Success Rate</p>
+                                        <p className="text-[10px] text-muted-foreground mt-1">
+                                            Range: {result.confidenceBand.low}% - {result.confidenceBand.high}%
+                                        </p>
+                                        <span className={`text-[9px] px-1.5 py-0.5 rounded ${result.confidenceBand.level === "High" ? "bg-green-500/20 text-green-400" : result.confidenceBand.level === "Medium" ? "bg-yellow-500/20 text-yellow-400" : "bg-red-500/20 text-red-400"}`}>
+                                            {result.confidenceBand.level} Confidence
+                                        </span>
                                     </div>
                                 </div>
 
@@ -661,6 +752,21 @@ I am fully committed to contributing positively to ${selectedCountry}'s economy 
                                         <span className="text-xs font-semibold text-primary">+{result.bonusPoints} bonus</span>
                                     </div>
                                 </div>
+
+                                {/* Policy Update Badge */}
+                                {country.policyUpdate && (
+                                    <div className="mb-4 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <Globe2 className="w-3.5 h-3.5 text-blue-400" />
+                                            <span className="text-xs font-semibold text-blue-400">
+                                                Policy Update: Changed {country.policyUpdate.daysAgo} days ago
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-muted-foreground ml-5">
+                                            {country.policyUpdate.change}
+                                        </p>
+                                    </div>
+                                )}
 
                                 {/* Requirements breakdown */}
                                 <div className="space-y-2">
@@ -710,24 +816,73 @@ I am fully committed to contributing positively to ${selectedCountry}'s economy 
                                 </div>
                             </div>
 
-                            {/* Improve + Generate inline row */}
-                            <div className="flex gap-3">
-                                {/* Recommendations */}
-                                {result.missingRequirements.length > 0 && (
-                                    <div className="flex-1 glass-card p-3 border-l-2 border-l-yellow-500">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <AlertTriangle className="w-3.5 h-3.5 text-yellow-400" />
-                                            <span className="font-medium text-xs">Improve</span>
-                                        </div>
-                                        <div className="flex flex-wrap gap-1">
-                                            {result.missingRequirements.slice(0, 3).map((req, i) => (
-                                                <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-yellow-500/10 text-yellow-400">
-                                                    {req}
-                                                </span>
-                                            ))}
-                                        </div>
+                            {/* How to Increase Your Score - AI Panel */}
+                            {result.topImprovements.length > 0 && (
+                                <div className="glass-card p-4 border-l-4 border-l-green-500">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <TrendingUp className="w-4 h-4 text-green-400" />
+                                        <span className="font-semibold text-sm">How to Increase Your Score</span>
                                     </div>
-                                )}
+                                    <div className="space-y-2">
+                                        {result.topImprovements.map((imp, i) => (
+                                            <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-green-500/5 border border-green-500/20">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="w-5 h-5 rounded-full bg-green-500/20 text-green-400 text-xs flex items-center justify-center font-bold">
+                                                        {i + 1}
+                                                    </span>
+                                                    <span className="text-sm">{imp.action}</span>
+                                                </div>
+                                                <span className="text-sm font-bold text-green-400">+{imp.improvement}%</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Why Low? Explanations */}
+                            {result.whyLow.length > 0 && (
+                                <div className="glass-card p-4 border-l-4 border-l-red-500">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <AlertTriangle className="w-4 h-4 text-red-400" />
+                                        <span className="font-semibold text-sm">Why This Score Is Low</span>
+                                    </div>
+                                    <ul className="space-y-1">
+                                        {result.whyLow.map((reason, i) => (
+                                            <li key={i} className="flex items-center gap-2 text-sm text-red-300">
+                                                <XCircle className="w-3 h-3 text-red-400 flex-shrink-0" />
+                                                {reason}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            {/* Score Breakdown - Explainability */}
+                            <div className="glass-card p-4">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <Target className="w-4 h-4 text-primary" />
+                                    <span className="font-semibold text-sm">Score Breakdown (Why This Score?)</span>
+                                </div>
+                                <div className="space-y-2">
+                                    {Object.entries(result.breakdown).map(([key, data]) => (
+                                        <div key={key} className="flex items-center gap-3">
+                                            <span className="text-xs text-muted-foreground w-20 capitalize">{key}</span>
+                                            <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                                                <div
+                                                    className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all"
+                                                    style={{ width: `${data.score}%` }}
+                                                />
+                                            </div>
+                                            <span className="text-xs font-medium w-16 text-right">
+                                                {Math.round(data.score * data.weight / 100)} / {data.weight}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Generate SOP Row */}
+                            <div className="flex gap-3">
 
                                 {/* Generate SOP Button */}
                                 <button

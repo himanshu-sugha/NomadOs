@@ -59,9 +59,6 @@ export default function Home() {
                 Start Exploring <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
             </Button>
-            <Button variant="ghost" size="lg" asChild>
-              <a href="#how">See what's inside</a>
-            </Button>
           </div>
         </div>
       </section>
@@ -85,16 +82,16 @@ export default function Home() {
                 color: "text-green-400"
               },
               {
+                icon: MapPin,
+                title: "Compare Countries",
+                desc: "See all 6 countries ranked by your match",
+                color: "text-purple-400"
+              },
+              {
                 icon: FileSearch,
                 title: "Document Scanner",
                 desc: "Upload ID or resume, we extract the details",
                 color: "text-blue-400"
-              },
-              {
-                icon: MapPin,
-                title: "Country Finder",
-                desc: "Find countries that match your situation",
-                color: "text-purple-400"
               },
               {
                 icon: MessageCircle,
@@ -110,48 +107,6 @@ export default function Home() {
                   <p className="text-sm text-muted-foreground">{item.desc}</p>
                 </CardContent>
               </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section id="how" className="py-20 px-6">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-4">
-            How does it work?
-          </h2>
-          <p className="text-center text-muted-foreground mb-12">
-            Pretty simple, actually.
-          </p>
-
-          <div className="space-y-6">
-            {[
-              {
-                num: "1",
-                title: "Tell us about yourself",
-                desc: "Your age, education, work experience, language skills. You can also upload your passport or resume and we'll extract the info automatically."
-              },
-              {
-                num: "2",
-                title: "Pick a destination",
-                desc: "Choose from Germany, Canada, Singapore, Australia, UAE, or Netherlands. We've researched the visa requirements for each."
-              },
-              {
-                num: "3",
-                title: "Get your results",
-                desc: "See your success probability, what's helping your case, what's hurting it, and what you can do to improve your chances."
-              },
-            ].map((step, i) => (
-              <div key={i} className="flex gap-4 p-5 rounded-xl bg-card border border-border">
-                <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold flex-shrink-0">
-                  {step.num}
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">{step.title}</h3>
-                  <p className="text-muted-foreground text-sm">{step.desc}</p>
-                </div>
-              </div>
             ))}
           </div>
         </div>

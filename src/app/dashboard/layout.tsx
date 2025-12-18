@@ -21,9 +21,9 @@ import {
 
 const sidebarLinks = [
     { href: "/dashboard", label: "How It Works", icon: Brain },
-    { href: "/dashboard/documents", label: "Document Scanner", icon: FileSearch },
     { href: "/dashboard/visa-predictor", label: "Visa Predictor", icon: TrendingUp },
     { href: "/dashboard/compare", label: "Compare Countries", icon: GitCompare },
+    { href: "/dashboard/documents", label: "Document Scanner", icon: FileSearch },
     { href: "/dashboard/culture", label: "Culture Guide", icon: MessageCircle },
 ];
 
@@ -75,20 +75,9 @@ export default function DashboardLayout({
 
                 {/* User section */}
                 <div className="p-4 mt-auto">
-                    <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary">
-                        <Avatar>
-                            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-white">
-                                DU
-                            </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                            <div className="text-sm font-semibold truncate">Demo User</div>
-                            <div className="text-xs text-muted-foreground truncate">Global Citizen</div>
-                        </div>
-                    </div>
                     <Link
                         href="/"
-                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:text-destructive transition-colors mt-2"
+                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:text-destructive transition-colors"
                     >
                         <LogOut className="w-5 h-5" />
                         Exit Dashboard
@@ -103,14 +92,6 @@ export default function DashboardLayout({
                     <div>
                         <h1 className="text-lg font-semibold">Welcome back!</h1>
                         <p className="text-sm text-muted-foreground">Manage your global mobility journey</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <Button variant="outline" size="icon">
-                            <Bell className="w-4 h-4" />
-                        </Button>
-                        <Button variant="outline" size="icon">
-                            <Settings className="w-4 h-4" />
-                        </Button>
                     </div>
                 </header>
 

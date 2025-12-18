@@ -2,6 +2,7 @@
 
 > Your intelligent companion for international relocation. Predict visa success, analyze documents, and prepare for life abroad.
 
+
 ---
 
 ## 1. What is NomadOS?
@@ -41,12 +42,10 @@ Moving to a new country is one of the most complex decisions a person can make. 
 
 | Feature | How It Works | File/Service |
 |---------|--------------|--------------|
-| **Visa Success Predictor** | Weighted scoring with 10+ factors (age, education, experience, field, language) | `src/app/dashboard/visa-predictor/page.tsx` |
-| **Document Vision AI** | Upload passport/resume → OCR extracts text → AI structures data | `src/app/api/analyze-document/route.ts` |
-| **Country Comparison** | Side-by-side analysis of 6 countries with exportable reports | `src/app/dashboard/compare/page.tsx` |
-| **Cultural Sync AI** | Real-time Q&A about workplace, housing, healthcare, etiquette | `src/app/api/chat/route.ts` |
-| **SOP Generator** | AI creates personalized Statement of Purpose from profile | `src/app/api/generate-document/route.ts` |
-| **Cover Letter Generator** | Professional cover letters tailored to destination country | `src/app/api/generate-document/route.ts` |
+| **Visa Predictor** | Weighted scoring with 10+ factors, confidence bands, improvement suggestions | `src/app/dashboard/visa-predictor/page.tsx` |
+| **Compare Countries** | Side-by-side analysis of 6 countries with AI recommendation | `src/app/dashboard/compare/page.tsx` |
+| **Document Scanner** | Upload passport/resume → OCR extracts text → auto-fills profile | `src/app/api/analyze-document/route.ts` |
+| **Culture Guide** | AI chat about workplace, housing, healthcare + SOP/cover letter generation | `src/app/dashboard/culture/page.tsx` |
 
 ---
 
@@ -57,14 +56,14 @@ Moving to a new country is one of the most complex decisions a person can make. 
 |  1. UNDERSTAND                                              |
 |  --> Read "How It Works" to understand the scoring system   |
 +-------------------------------------------------------------+
-|  2. UPLOAD (Optional)                                       |
-|  --> Upload passport/resume → OCR extracts your profile     |
-+-------------------------------------------------------------+
-|  3. PREDICT                                                 |
+|  2. PREDICT                                                 |
 |  --> Enter details → ML calculates visa success probability |
 +-------------------------------------------------------------+
-|  4. COMPARE                                                 |
+|  3. COMPARE                                                 |
 |  --> See all 6 countries ranked by your match percentage    |
++-------------------------------------------------------------+
+|  4. SCAN (Optional)                                         |
+|  --> Upload passport/resume → OCR auto-fills your profile   |
 +-------------------------------------------------------------+
 |  5. PREPARE                                                 |
 |  --> Chat with AI about culture, generate SOP/cover letter  |
