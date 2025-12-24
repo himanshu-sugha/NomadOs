@@ -2,43 +2,21 @@
 
 > Your intelligent companion for international relocation. Predict visa success, analyze documents, and prepare for life abroad.
 
+---
+
+## 📑 Table of Contents
+1. [Features & Implementation](#features--implementation)
+2. [How It Works (User Flow)](#-how-it-works-user-flow)
+3. [4 Input Sources](#4-input-sources)
+4. [AI Capabilities](#ai-capabilities)
+5. [ML Scoring Algorithm](#ml-scoring-algorithm)
+6. [Architecture](#architecture)
+7. [Tech Stack](#tech-stack)
+8. [Quick Start](#quick-start)
 
 ---
 
-## 1. What is NomadOS?
-
-NomadOS is an **AI-powered global mobility platform** that:
-
-1. **Predicts visa success** using ML-powered scoring algorithm
-2. **Extracts document data** with OCR.space Vision AI
-3. **Compares countries** with side-by-side visa analysis
-4. **Prepares you culturally** with Gemini AI coaching
-5. **Generates documents** like SOP and cover letters automatically
-
----
-
-## 2. Problem Statement
-
-Moving to a new country is one of the most complex decisions a person can make. Millions of skilled workers, students, and professionals face:
-
-| Problem | Impact |
-|---------|--------|
-| **Uncertainty** | No way to know visa approval chances before applying |
-| **Information Overload** | Visa requirements spread across hundreds of government pages |
-| **Wasted Applications** | People apply to countries where they have low success probability |
-| **Cultural Blindness** | Professionals fail abroad due to cultural misunderstandings |
-| **Document Confusion** | Unclear what documents are needed and how to prepare them |
-
-**The Cost:**
-- Average visa application costs $500-2000
-- Rejection rate for many skilled visas is 30-40%
-- Professionals lose months of time on unsuccessful applications
-
-**NomadOS solves this** by using AI to analyze your profile, predict your success probability, and prepare you for life abroad before you spend money on applications.
-
----
-
-## 3. Features & Implementation
+## Features & Implementation
 
 | Feature | How It Works | File/Service |
 |---------|--------------|--------------|
@@ -47,10 +25,11 @@ Moving to a new country is one of the most complex decisions a person can make. 
 | **Compare Countries** | Side-by-side analysis of 6 countries with AI recommendation | `src/app/dashboard/compare/page.tsx` |
 | **Document Scanner** | Upload passport/resume → OCR extracts text → **auto-fills Visa Predictor** | `src/app/api/analyze-document/route.ts` |
 | **Culture Guide** | AI chat about workplace, housing, healthcare + SOP/cover letter generation | `src/app/dashboard/culture/page.tsx` |
+| **Secure Logic** | All complex scoring logic runs securely on client-side | `src/data/scoring-algorithm.ts` |
 
 ---
 
-## 4. How It Works (User Flow)
+## 🔄 How It Works (User Flow)
 
 ```
 +-------------------------------------------------------------+
@@ -76,9 +55,45 @@ Moving to a new country is one of the most complex decisions a person can make. 
 
 ---
 
-## 5. ML Scoring Algorithm
+## 4 Input Sources
 
-Our visa predictor uses a sophisticated weighted scoring system with multiple factors:
+| Input Method | Technology | How It Works |
+|--------------|------------|--------------|
+| **Manual Entry** | Web Forms | User types profile details (Exp, Degree, Skills) |
+| **Passport Scan** | OCR.space API | Extract Name, DOB, Country from ID page |
+| **Resume/CV Scan** | Text Analysis | Parse Job Role, Company, Skills from PDF |
+| **Cultural Chat** | Gemini AI | User asks Natural Language questions about destination |
+
+---
+
+## AI Capabilities
+
+NomadOS leverages a **Multi-Model AI Approach**:
+
+| Component | Technology | Purpose |
+|-----------|------------|---------|
+| **Vision AI** | OCR.space | Reads identity documents and resumes |
+| **Generative AI** | Google Gemini 1.5 Flash | Powers the Cultural Guide and Document Generator (SOPs) |
+| **Predictive ML** | Custom Algorithm | Calculates visa approval probability based on 10+ weighted factors |
+| **Personalization** | Dynamic Logic | Adapts the "Visa Timeline" based on inferred user role (e.g. Tech vs Healthcare) |
+
+### Gemini AI Fallbacks
+
+**The app works 100% without API keys.** Every AI feature has a fallback:
+
+| Feature | With Gemini API | Without Gemini (Fallback) |
+|---------|-----------------|---------------------------|
+| **Cultural Chat** | Real-time AI responses | Pre-written comprehensive responses for 6 countries × 5 topics |
+| **SOP Generation** | AI-generated personalized SOP | Template-based SOP with profile data injection |
+| **Document OCR** | OCR.space + AI parsing | Demo data mode for instant testing |
+
+> **Core features (visa prediction, country comparison, scoring algorithm, timeline) work fully without any external API.**
+
+---
+
+## ML Scoring Algorithm
+
+Our visa predictor uses a sophisticated weighted scoring system:
 
 ### 5.1 Scoring Weights
 | Factor | Weight | How It's Scored |
@@ -91,104 +106,60 @@ Our visa predictor uses a sophisticated weighted scoring system with multiple fa
 | Documents | 10% | Passport, health insurance, funds proof |
 
 ### 5.2 Bonus Points System
-| Factor | Bonus | Details |
-|--------|-------|---------|
-| STEM Field | +5 to +8 | Technology, Engineering, Healthcare, AI, Data Science |
-| Finance Field | +3 to +6 | Banking, Consulting (higher in UAE/Singapore) |
-| Passport Strength | +0 to +5 | Tier 1 passports (USA, UK, Germany, Japan) get full bonus |
-| Local Language | +5 | French for Canada, German for Germany |
-| Relatives in Country | +3 | Shows integration potential |
-| PhD Holder | +5 | Additional boost for doctoral degree |
-| 10+ Years Experience | +5 | Expertise recognition |
-
-### 5.3 Penalty Factors
-| Factor | Penalty | Details |
-|--------|---------|---------|
-| Previous Visa Rejection | -10 | Significant negative signal |
-
-**Formula:** `Final Score = Σ(Weight × MatchPercentage) + BonusPoints - Penalties`
+*   **STEM Field**: +5-8 points (Tech, Engineering, AI)
+*   **Passport Strength**: +0-5 points (Tier 1 passports)
+*   **Local Language**: +5 points (e.g. German for Germany)
 
 ---
 
-## 6. AI Capabilities (Gemini)
-
-| Method | Purpose | Endpoint |
-|--------|---------|----------|
-| Cultural Chat | Real-time Q&A about destination culture | `/api/chat` |
-| SOP Generation | Create Statement of Purpose from profile | `/api/generate-document` |
-| Cover Letter | Professional cover letter generation | `/api/generate-document` |
-| Document Analysis | Parse OCR text into structured data | `/api/analyze-document` |
-
----
-
-## 7. Fallback System
-
-**The app works 100% without API keys.** Every AI feature has a fallback:
-
-| Feature | With Gemini API | Without Gemini (Fallback) |
-|---------|-----------------|---------------------------|
-| **Cultural Chat** | Real-time AI responses | Pre-written comprehensive responses for 6 countries × 5 topics |
-| **SOP Generation** | AI-generated personalized SOP | Template-based SOP with profile data injection |
-| **Cover Letter** | AI-generated cover letter | Template-based cover letter |
-| **Document OCR** | OCR.space + AI parsing | Demo data for demonstration |
-| **Visa Predictor** | N/A (no API needed) | Full ML algorithm runs client-side |
-| **Country Comparison** | N/A (no API needed) | Full scoring runs client-side |
-
-> **Core features (visa prediction, country comparison, scoring algorithm) work fully without any external API.**
-
----
-
-## 8. Architecture
+## Architecture
 
 ```
 +-------------------------------------------------------------+
-|                    NomadOS Frontend                         |
-|                     (Next.js 15)                            |
+|                    NomadOS Platform                         |
 +-------------------------------------------------------------+
-|  UI Layer                                                   |
-|  [How It Works] [Documents] [Visa Predictor] [Compare]      |
-|  [Culture Guide]                                            |
+|  UI Layer (Next.js 15)                                      |
+|  [Dashboard] [Predictor] [Timeline] [Culture Chat]          |
 +-------------------------------------------------------------+
-|  AI Layer                                                   |
-|  +------------+  +------------+  +------------+             |
-|  | ML Scoring |  | OCR.space  |  | Gemini AI  |             |
-|  | Algorithm  |  | Vision API |  | (Chat/Gen) |             |
-|  +------------+  +------------+  +------------+             |
+|  Intelligence Layer                                         |
+|  - Gemini Service (Gen AI)                                  |
+|  - OCR Service (Vision AI)                                  |
+|  - ML Scoring Engine (Predictive Logic)                     |
 +-------------------------------------------------------------+
-|  API Routes (Next.js Serverless)                            |
-|  /api/chat  |  /api/analyze-document  |  /api/generate      |
+|  Data Layer (Privacy Focused)                               |
+|  localStorage - User profile & timeline progress saved      |
+|  locally. No PII sent to servers unnecessarily.             |
 +-------------------------------------------------------------+
 ```
 
 ---
 
-## 9. Tech Stack
+## Tech Stack
 
 | Category | Technology |
 |----------|------------|
-| **Framework** | Next.js 15 (App Router, Turbopack) |
-| **Language** | TypeScript 5 |
-| **AI** | Google Gemini 2.5 Flash |
-| **ML** | Custom client-side scoring algorithm |
-| **OCR** | OCR.space API |
-| **Styling** | Tailwind CSS, shadcn/ui |
-| **Deployment** | Vercel |
+| **Frontend** | Next.js 15, React, TypeScript |
+| **Styling** | Tailwind CSS, Lucide Icons, Glassmorphism UI |
+| **AI Models** | Google Gemini 1.5 Flash (GenAI) |
+| **Vision** | OCR.space API (Document Parsing) |
+| **Visualization** | Recharts (Spider Charts, Bar Graphs) |
+| **State** | React Hooks + LocalStorage Persistence |
 
 ---
 
-## 10. Quick Start
+## Quick Start
 
 ```bash
 # 1. Clone the repository
 git clone https://github.com/himanshu-sugha/NomadOs
-cd NomadOs
 
 # 2. Install dependencies
 npm install
 
-# 3. Set up environment (optional - app works without keys)
-cp .env.example .env.local
-# Add your API keys if you have them
+# 3. Set up API Keys (Optional - Fallbacks included)
+# Create .env.local and add:
+# GEMINI_API_KEY=your_key
+# OCR_SPACE_API_KEY=your_key
 
 # 4. Run development server
 npm run dev
@@ -196,64 +167,14 @@ npm run dev
 # 5. Open http://localhost:3000
 ```
 
-### Environment Variables
-
-```env
-GEMINI_API_KEY=your_gemini_key    # Optional - enables AI chat
-OCR_API_KEY=your_ocr_space_key    # Optional - enables document OCR
-```
-
-> **Note:** Both keys are optional. The app has comprehensive fallbacks for all features.
-
 ---
 
-## 11. Project Structure
-
-```
-src/
-├── app/
-│   ├── page.tsx                   # Landing page
-│   ├── dashboard/
-│   │   ├── how-it-works/          # Algorithm explanation
-│   │   ├── documents/             # OCR document scanner
-│   │   ├── visa-predictor/        # ML visa scoring
-│   │   ├── compare/               # Country comparison
-│   │   └── culture/               # AI cultural coach
-│   └── api/
-│       ├── chat/                  # Gemini chat endpoint
-│       ├── analyze-document/      # OCR processing
-│       └── generate-document/     # SOP/cover letter generation
-├── components/
-│   └── ui/                        # shadcn components
-└── lib/
-    └── utils.ts
-```
-
----
-
-## 12. Demo
-
-**Key Flows:**
-1. **Visa Prediction**: Enter profile → Get success probability with breakdown
-2. **Document Upload**: Upload passport → AI extracts name, country, DOB
-3. **Country Comparison**: See all 6 countries ranked by match percentage
-4. **Cultural Prep**: Chat with AI → Get workplace, housing, healthcare tips
-
----
-
-## 13. Author
-
-**Himanshu Sugha**  
-Email: himanshusugha@gmail.com
-
----
-
-## 14. License
+## License
 
 MIT License
 
 ---
 
-<p align="center">
-  <b>NomadOS - Your Passport to the World</b>
-</p>
+## Author
+
+Built for **VisaVerse AI Hackathon** by **Himanshu Sugha**
