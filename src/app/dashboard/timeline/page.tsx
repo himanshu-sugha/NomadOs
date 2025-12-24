@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
     ArrowLeft,
@@ -124,6 +124,33 @@ const timelines: Record<string, { phase: string; steps: { title: string; descrip
 export default function TimelinePage() {
     const [selectedCountry, setSelectedCountry] = useState("Germany");
     const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
+    const [userProfile, setUserProfile] = useState<any>(null);
+
+    // Load profile and saved progress
+    useEffect(() => {
+        // Load profile
+        const savedProfile = localStorage.getItem("nomados_profile");
+        if (savedProfile) {
+            try {
+                setUserProfile(JSON.parse(savedProfile));
+            } catch (e) { console.error(e); }
+        }
+
+        // Load progress
+        const savedProgress = localStorage.getItem("nomados_timeline_progress");
+        if (savedProgress) {
+            try {
+                setCompletedSteps(new Set(JSON.parse(savedProgress)));
+            } catch (e) { console.error(e); }
+        }
+    }, []);
+
+    // Save progress
+    useEffect(() => {
+        if (completedSteps.size > 0) {
+            localStorage.setItem("nomados_timeline_progress", JSON.stringify(Array.from(completedSteps)));
+        }
+    }, [completedSteps]);
 
     const countries = [
         { name: "Germany", flag: "🇩🇪" },
@@ -176,8 +203,8 @@ export default function TimelinePage() {
                             setCompletedSteps(new Set());
                         }}
                         className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${selectedCountry === c.name
-                                ? "bg-primary text-primary-foreground"
-                                : "bg-card hover:bg-card/80 border border-border"
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-card hover:bg-card/80 border border-border"
                             }`}
                     >
                         <span className="text-xl">{c.flag}</span>
@@ -213,6 +240,29 @@ export default function TimelinePage() {
                             <h2 className="text-xl font-bold">{phase.phase}</h2>
                         </div>
 
+                        {/* Personalized AI Hint */}
+                        {userProfile && (
+                            <div className="ml-12 mb-4">
+                                {phase.phase.includes("Job Search") && userProfile.role && (
+                                    <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 text-sm text-blue-400 flex gap-2">
+                                        <Briefcase className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                                        <span>
+                                            <strong>AI Insight:</strong> As a {userProfile.role}, focus on {selectedCountry === "Germany" ? "StepStone and Xing" : "LinkedIn and Indeed"} for your search.
+                                            {selectedCountry === "Germany" && " Tech roles often skip the language requirement."}
+                                        </span>
+                                    </div>
+                                )}
+                                {phase.phase.includes("Preparation") && userProfile.degreeLevel && (
+                                    <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-3 text-sm text-purple-400 flex gap-2">
+                                        <GraduationCap className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                                        <span>
+                                            <strong>AI Insight:</strong> Since you have a {userProfile.degreeLevel}, insure you get your ZAB Statement of Comparability early.
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
                         {/* Steps */}
                         <div className="ml-4 pl-4 border-l-2 border-border space-y-4">
                             {phase.steps.map((step, stepIndex) => {
@@ -229,8 +279,8 @@ export default function TimelinePage() {
                                         <div className="flex items-start gap-4">
                                             {/* Step indicator */}
                                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${isCompleted
-                                                    ? "bg-green-500 text-white"
-                                                    : "bg-muted text-muted-foreground"
+                                                ? "bg-green-500 text-white"
+                                                : "bg-muted text-muted-foreground"
                                                 }`}>
                                                 {isCompleted ? (
                                                     <CheckCircle className="w-5 h-5" />

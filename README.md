@@ -43,8 +43,9 @@ Moving to a new country is one of the most complex decisions a person can make. 
 | Feature | How It Works | File/Service |
 |---------|--------------|--------------|
 | **Visa Predictor** | Weighted scoring with 10+ factors, confidence bands, improvement suggestions | `src/app/dashboard/visa-predictor/page.tsx` |
+| **Visa Timeline** | **[NEW]** Personalized step-by-step roadmap with AI insights based on your profile | `src/app/dashboard/timeline/page.tsx` |
 | **Compare Countries** | Side-by-side analysis of 6 countries with AI recommendation | `src/app/dashboard/compare/page.tsx` |
-| **Document Scanner** | Upload passport/resume → OCR extracts text → auto-fills profile | `src/app/api/analyze-document/route.ts` |
+| **Document Scanner** | Upload passport/resume → OCR extracts text → **auto-fills Visa Predictor** | `src/app/api/analyze-document/route.ts` |
 | **Culture Guide** | AI chat about workplace, housing, healthcare + SOP/cover letter generation | `src/app/dashboard/culture/page.tsx` |
 
 ---
@@ -65,7 +66,10 @@ Moving to a new country is one of the most complex decisions a person can make. 
 |  4. SCAN (Optional)                                         |
 |  --> Upload passport/resume → OCR auto-fills your profile   |
 +-------------------------------------------------------------+
-|  5. PREPARE                                                 |
+|  5. PLAN                                                    |
+|  --> Get personalized step-by-step visa timeline            |
++-------------------------------------------------------------+
+|  6. PREPARE                                                 |
 |  --> Chat with AI about culture, generate SOP/cover letter  |
 +-------------------------------------------------------------+
 ```

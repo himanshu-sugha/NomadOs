@@ -208,8 +208,8 @@ export default function DocumentsPage() {
                                     key={doc.type}
                                     onClick={() => setSelectedType(doc.type)}
                                     className={`p-5 rounded-xl border text-left transition-all ${selectedType === doc.type
-                                            ? "border-[var(--primary-500)] bg-[var(--primary-500)]/10"
-                                            : "border-[var(--border-color)] hover:border-[var(--border-color-hover)]"
+                                        ? "border-[var(--primary-500)] bg-[var(--primary-500)]/10"
+                                        : "border-[var(--border-color)] hover:border-[var(--border-color-hover)]"
                                         }`}
                                 >
                                     <doc.icon className={`w-6 h-6 mb-3 ${selectedType === doc.type ? "text-[var(--primary-400)]" : "text-[var(--text-muted)]"
@@ -379,6 +379,36 @@ export default function DocumentsPage() {
                                     <p className="text-xs text-[var(--text-muted)] mt-4 text-center">
                                         ✏️ Edit any field above to correct OCR mistakes
                                     </p>
+                                )}
+
+                                {/* Use in Visa Predictor Button */}
+                                {getDisplayFields().length > 0 && (
+                                    <div className="mt-6 pt-6 border-t border-[var(--border-color)]">
+                                        <button
+                                            onClick={() => {
+                                                // Save extracted data to localStorage
+                                                const profileData = {
+                                                    name: extractedData["Name"] || "",
+                                                    country: extractedData["Country"] || "",
+                                                    dateOfBirth: extractedData["Date of Birth"] || "",
+                                                    experience: extractedData["Experience"] || "",
+                                                    role: extractedData["Role"] || "",
+                                                    company: extractedData["Company"] || "",
+                                                    skills: extractedData["Skills"] || [],
+                                                };
+                                                localStorage.setItem("nomados_profile", JSON.stringify(profileData));
+                                                // Navigate to Visa Predictor
+                                                window.location.href = "/dashboard/visa-predictor";
+                                            }}
+                                            className="w-full btn-primary py-3 flex items-center justify-center gap-2"
+                                        >
+                                            <Sparkles className="w-4 h-4" />
+                                            Use in Visa Predictor
+                                        </button>
+                                        <p className="text-xs text-[var(--text-muted)] mt-2 text-center">
+                                            This will auto-fill your profile in the Visa Predictor
+                                        </p>
+                                    </div>
                                 )}
                             </div>
                         </div>

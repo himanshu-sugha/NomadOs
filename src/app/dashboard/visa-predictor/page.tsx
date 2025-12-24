@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     TrendingUp,
     AlertTriangle,
     CheckCircle,
     XCircle,
+    X,
     FileText,
     Sparkles,
     Globe2,
@@ -142,6 +143,64 @@ export default function VisaPredictorPage() {
     const [showResults, setShowResults] = useState(false);
     const [generatedSOP, setGeneratedSOP] = useState<string>("");
     const [isGenerating, setIsGenerating] = useState(false);
+    const [profileLoaded, setProfileLoaded] = useState(false);
+
+    // Load profile from localStorage (from Document Scanner)
+    useEffect(() => {
+        const savedProfile = localStorage.getItem("nomados_profile");
+        if (savedProfile) {
+            try {
+                const parsed = JSON.parse(savedProfile);
+
+                // Calculate age from DOB
+                let calculatedAge: number | null = null;
+                if (parsed.dateOfBirth) {
+                    const birthDate = new Date(parsed.dateOfBirth);
+                    if (!isNaN(birthDate.getTime())) {
+                        const today = new Date();
+                        let a = today.getFullYear() - birthDate.getFullYear();
+                        const m = today.getMonth() - birthDate.getMonth();
+                        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                            a--;
+                        }
+                        if (a > 18 && a < 100) {
+                            calculatedAge = a;
+                        }
+                    }
+                }
+
+                // Infer field of work from role
+                let inferredField: string | null = null;
+                if (parsed.role) {
+                    const role = parsed.role.toLowerCase();
+                    if (role.includes("engineer") || role.includes("developer") || role.includes("tech") || role.includes("data")) {
+                        inferredField = "Technology";
+                    } else if (role.includes("nurse") || role.includes("doctor") || role.includes("medical")) {
+                        inferredField = "Healthcare";
+                    } else if (role.includes("manager") || role.includes("business") || role.includes("finance")) {
+                        inferredField = "Finance";
+                    }
+                }
+
+                // Map scanned data to profile fields
+                const experienceYears = parseInt(parsed.experience?.replace(/\D/g, '') || '0') || 0;
+
+                setProfile(prev => ({
+                    ...prev,
+                    yearsExperience: experienceYears > 0 ? experienceYears : prev.yearsExperience,
+                    skills: Array.isArray(parsed.skills) ? parsed.skills : prev.skills,
+                    passportCountry: parsed.country || prev.passportCountry,
+                    age: calculatedAge !== null ? calculatedAge : prev.age,
+                    fieldOfWork: inferredField !== null ? inferredField : prev.fieldOfWork,
+                }));
+                setProfileLoaded(true);
+                // Clear after loading
+                localStorage.removeItem("nomados_profile");
+            } catch (e) {
+                console.error("Failed to parse saved profile:", e);
+            }
+        }
+    }, []);
 
     const country = countryRequirements[selectedCountry as keyof typeof countryRequirements];
 
@@ -543,6 +602,24 @@ I am fully committed to contributing positively to ${selectedCountry}'s economy 
                     <span className="text-xs font-medium">AI Powered</span>
                 </div>
             </div>
+
+            {/* Profile Loaded Banner */}
+            {profileLoaded && (
+                <div className="bg-green-500/10 border border-green-500/20 text-green-400 px-4 py-3 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2 mb-6">
+                    <CheckCircle className="w-5 h-5" />
+                    <div>
+                        <p className="font-semibold text-sm">Profile Auto-Filled!</p>
+                        <p className="text-xs opacity-90">Data extracted from your documents has been applied below.</p>
+                    </div>
+                    <button
+                        onClick={() => setProfileLoaded(false)}
+                        className="ml-auto text-green-400/50 hover:text-green-400"
+                    >
+                        <X className="w-4 h-4" />
+                    </button>
+                </div>
+            )
+            }
 
             <div className="grid lg:grid-cols-3 gap-6">
                 {/* Profile Input */}
@@ -955,6 +1032,6 @@ I am fully committed to contributing positively to ${selectedCountry}'s economy 
                     )}
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
